@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PharmaLink B2B — Supply Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0A1628;
+    --navy2: #112240;
+    --teal: #00B4D8;
+    --teal2: #0096B7;
+    --mint: #06D6A0;
+    --red: #EF233C;
+    --amber: #F4A261;
+    --bg: #F0F4F8;
+    --card: #FFFFFF;
+    --text: #0A1628;
+    --text2: #4A5568;
+    --text3: #A0AEC0;
+    --border: #E2E8F0;
+    --success: #06D6A0;
+    --warning: #F4A261;
+    --r: 14px;
+    --r2: 10px;
+    --shadow: 0 2px 16px rgba(10,22,40,0.08);
+    --shadow2: 0 4px 24px rgba(10,22,40,0.14);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'DM Sans',sans-serif; background:#1a1a2e; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+
+  /* Phone frame */
+  .phone-wrap { position:relative; }
+  .phone-frame {
+    width:390px; height:844px; background:var(--navy); border-radius:50px;
+    padding:12px; box-shadow:0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #2a3a5a;
+    position:relative; overflow:hidden;
+  }
+  .phone-screen {
+    width:100%; height:100%; background:var(--bg); border-radius:40px;
+    overflow:hidden; position:relative;
+  }
+  .notch {
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:130px; height:32px; background:var(--navy); border-radius:0 0 20px 20px;
+    z-index:100;
+  }
+
+  /* Screens */
+  .screen {
+    position:absolute; inset:0; background:var(--bg);
+    display:none; flex-direction:column; overflow:hidden;
+    animation:slideIn 0.25s ease;
+  }
+  .screen.active { display:flex; }
+  @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes slideBack { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+  .screen.back { animation:slideBack 0.25s ease; }
+
+  /* Status bar */
+  .status-bar {
+    height:48px; min-height:48px; display:flex; align-items:flex-end; justify-content:space-between;
+    padding:0 24px 8px; background:var(--navy); color:#fff; font-size:11px; font-weight:600;
+    position:relative; z-index:10;
+  }
+  .status-time { font-family:'DM Mono',monospace; }
+  .status-icons { display:flex; gap:6px; align-items:center; }
+
+  /* Nav bar */
+  .nav-bar {
+    height:64px; min-height:64px; background:var(--card); border-top:1px solid var(--border);
+    display:flex; align-items:center; padding-bottom:8px;
+  }
+  .nav-item {
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10px; font-weight:600; color:var(--text3); cursor:pointer;
+    padding:8px 4px; transition:color 0.2s;
+  }
+  .nav-item.active { color:var(--teal); }
+  .nav-icon { font-size:20px; }
+
+  /* Scrollable content */
+  .content { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+  .content::-webkit-scrollbar { display:none; }
+
+  /* Header */
+  .screen-header {
+    background:var(--navy); color:#fff; padding:56px 20px 20px;
+    position:relative;
+  }
+  .screen-header h2 { font-size:20px; font-weight:700; }
+  .screen-header p { font-size:13px; color:rgba(255,255,255,0.6); margin-top:2px; }
+  .back-btn {
+    position:absolute; top:52px; left:16px; width:36px; height:36px;
+    background:rgba(255,255,255,0.1); border-radius:50%; display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:18px; color:#fff; border:none;
+  }
+  .header-title { padding-left:44px; }
+
+  /* Cards */
+  .card {
+    background:var(--card); border-radius:var(--r); padding:16px;
+    box-shadow:var(--shadow); margin-bottom:12px;
+  }
+  .card-row { display:flex; align-items:center; gap:12px; }
+
+  /* Buttons */
+  .btn {
+    background:var(--teal); color:#fff; border:none; border-radius:var(--r2);
+    padding:14px 20px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600;
+    cursor:pointer; width:100%; transition:background 0.2s, transform 0.1s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn:active { transform:scale(0.97); }
+  .btn-outline {
+    background:transparent; color:var(--teal); border:2px solid var(--teal);
+  }
+  .btn-sm {
+    padding:8px 16px; font-size:13px; border-radius:8px; width:auto;
+  }
+  .btn-navy { background:var(--navy); }
+  .btn-mint { background:var(--mint); }
+  .btn-red { background:var(--red); }
+
+  /* Badge */
+  .badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--teal); color:#fff; font-size:10px; font-weight:700;
+    border-radius:20px; padding:2px 8px; min-width:20px; height:20px;
+  }
+  .badge-red { background:var(--red); }
+  .badge-mint { background:var(--mint); color:var(--navy); }
+  .badge-amber { background:var(--amber); color:var(--navy); }
+  .badge-outline { background:transparent; border:1.5px solid var(--teal); color:var(--teal); }
+
+  /* Tags */
+  .tag {
+    display:inline-flex; align-items:center; padding:4px 10px; border-radius:20px;
+    font-size:11px; font-weight:600; background:var(--bg);
+    color:var(--text2);
+  }
+  .tag-teal { background:#E0F7FC; color:var(--teal2); }
+  .tag-mint { background:#E6FAF5; color:#059669; }
+  .tag-amber { background:#FEF3E2; color:#D97706; }
+  .tag-red { background:#FEE8EC; color:var(--red); }
+
+  /* Inputs */
+  .input-wrap { margin-bottom:16px; }
+  .input-label { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:6px; display:block; }
+  .input {
+    width:100%; background:var(--bg); border:1.5px solid var(--border);
+    border-radius:var(--r2); padding:12px 14px; font-family:'DM Sans',sans-serif;
+    font-size:15px; color:var(--text); outline:none; transition:border-color 0.2s;
+  }
+  .input:focus { border-color:var(--teal); }
+
+  /* Divider */
+  .divider { height:1px; background:var(--border); margin:12px 0; }
+
+  /* Section label */
+  .section-label {
+    font-size:11px; font-weight:700; color:var(--text3); letter-spacing:0.8px;
+    text-transform:uppercase; margin-bottom:12px;
+  }
+
+  /* ═══════════════════════════════
+     SCREEN 1: SPLASH / LOGIN
+  ═══════════════════════════════ */
+  #screen-login {
+    background:var(--navy);
+  }
+  .login-bg {
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at 20% 20%, #1a3a6a 0%, transparent 60%),
+               radial-gradient(ellipse at 80% 80%, #003a50 0%, transparent 60%);
+  }
+  .login-content {
+    position:relative; flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:40px 28px; gap:8px;
+  }
+  .logo-circle {
+    width:80px; height:80px; background:var(--teal); border-radius:24px;
+    display:flex; align-items:center; justify-content:center; font-size:36px;
+    margin-bottom:16px; box-shadow:0 8px 32px rgba(0,180,216,0.4);
+  }
+  .login-title { color:#fff; font-size:28px; font-weight:700; text-align:center; }
+  .login-sub { color:rgba(255,255,255,0.5); font-size:14px; text-align:center; margin-bottom:24px; }
+  .login-form { width:100%; }
+  .login-input {
+    width:100%; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.15);
+    border-radius:var(--r2); padding:14px 16px; font-family:'DM Sans',sans-serif;
+    font-size:15px; color:#fff; outline:none; margin-bottom:12px;
+  }
+  .login-input::placeholder { color:rgba(255,255,255,0.35); }
+  .login-input:focus { border-color:var(--teal); }
+  .otp-row { display:flex; gap:10px; margin-bottom:16px; }
+  .otp-box {
+    flex:1; height:52px; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.15);
+    border-radius:10px; text-align:center; font-size:20px; font-weight:700; color:#fff;
+    font-family:'DM Mono',monospace; outline:none;
+  }
+  .otp-box:focus { border-color:var(--teal); }
+  .kyc-pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .kyc-pill {
+    padding:6px 14px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.2);
+    color:rgba(255,255,255,0.6); font-size:12px; font-weight:600; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .kyc-pill.selected { background:var(--teal); border-color:var(--teal); color:#fff; }
+  .step-dots { display:flex; gap:6px; margin-bottom:24px; }
+  .step-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.2); }
+  .step-dot.active { background:var(--teal); width:24px; border-radius:4px; }
+
+  /* ═══════════════════════════════
+     SCREEN 2: HOME / DISCOVERY
+  ═══════════════════════════════ */
+  .home-header {
+    background:var(--navy); padding:52px 20px 24px; position:relative;
+    overflow:hidden;
+  }
+  .home-header::after {
+    content:''; position:absolute; bottom:-30px; left:0; right:0; height:60px;
+    background:var(--bg); border-radius:30px 30px 0 0;
+  }
+  .greeting { color:rgba(255,255,255,0.6); font-size:13px; font-weight:500; }
+  .greeting-name { color:#fff; font-size:20px; font-weight:700; margin-bottom:16px; }
+  .search-bar {
+    background:#fff; border-radius:12px; padding:12px 16px;
+    display:flex; align-items:center; gap:10px; position:relative; z-index:1;
+  }
+  .search-bar span { font-size:18px; }
+  .search-bar input {
+    flex:1; border:none; outline:none; font-family:'DM Sans',sans-serif;
+    font-size:14px; color:var(--text); background:transparent;
+  }
+  .search-bar input::placeholder { color:var(--text3); }
+
+  .stats-row { display:flex; gap:12px; padding:16px 16px 4px; }
+  .stat-card {
+    flex:1; background:var(--card); border-radius:var(--r2); padding:14px;
+    box-shadow:var(--shadow); text-align:center;
+  }
+  .stat-num { font-size:22px; font-weight:700; color:var(--teal); }
+  .stat-lbl { font-size:11px; color:var(--text2); font-weight:500; margin-top:2px; }
+
+  .categories-scroll { display:flex; gap:10px; padding:16px 16px 8px; overflow-x:auto; }
+  .categories-scroll::-webkit-scrollbar { display:none; }
+  .cat-chip {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:var(--card); border-radius:12px; padding:12px 14px; min-width:72px;
+    box-shadow:var(--shadow); cursor:pointer; border:2px solid transparent;
+    transition:all 0.2s; flex-shrink:0;
+  }
+  .cat-chip.active { border-color:var(--teal); background:#E0F7FC; }
+  .cat-chip-icon { font-size:22px; }
+  .cat-chip-label { font-size:11px; font-weight:600; color:var(--text2); text-align:center; }
+  .cat-chip.active .cat-chip-label { color:var(--teal2); }
+
+  .supplier-card {
+    background:var(--card); border-radius:var(--r); padding:14px; margin-bottom:12px;
+    box-shadow:var(--shadow); cursor:pointer; transition:transform 0.1s;
+  }
+  .supplier-card:active { transform:scale(0.98); }
+  .supplier-avatar {
+    width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--teal),var(--mint));
+    display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+  }
+  .supplier-name { font-size:15px; font-weight:700; color:var(--text); }
+  .supplier-meta { font-size:12px; color:var(--text3); margin-top:2px; }
+  .stars { color:#F4A261; font-size:12px; }
+
+  /* ═══════════════════════════════
+     SCREEN 3: STOCK & PRICE VIEW
+  ═══════════════════════════════ */
+  .product-card {
+    background:var(--card); border-radius:var(--r); padding:14px;
+    margin-bottom:10px; box-shadow:var(--shadow);
+  }
+  .product-img {
+    width:56px; height:56px; border-radius:12px; background:linear-gradient(135deg,#E0F7FC,#B3EAF5);
+    display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0;
+  }
+  .product-name { font-size:14px; font-weight:700; color:var(--text); }
+  .product-sku { font-size:11px; font-family:'DM Mono',monospace; color:var(--text3); }
+  .product-price { font-size:18px; font-weight:700; color:var(--teal2); }
+  .product-mrp { font-size:11px; color:var(--text3); text-decoration:line-through; }
+  .stock-bar-wrap { margin-top:8px; }
+  .stock-bar { height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .stock-fill { height:100%; border-radius:4px; background:var(--mint); }
+  .stock-fill.low { background:var(--red); }
+  .stock-fill.med { background:var(--amber); }
+  .qty-ctrl {
+    display:flex; align-items:center; gap:0; background:var(--bg); border-radius:8px; overflow:hidden;
+  }
+  .qty-btn {
+    width:32px; height:32px; border:none; background:transparent; font-size:18px; font-weight:700;
+    color:var(--teal); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .qty-val {
+    width:36px; text-align:center; font-size:14px; font-weight:700; color:var(--text);
+    font-family:'DM Mono',monospace;
+  }
+  .filter-row { display:flex; gap:8px; padding:12px 16px; overflow-x:auto; }
+  .filter-row::-webkit-scrollbar { display:none; }
+  .filter-chip {
+    padding:6px 14px; border-radius:20px; border:1.5px solid var(--border);
+    font-size:12px; font-weight:600; color:var(--text2); cursor:pointer; white-space:nowrap;
+    transition:all 0.2s; background:#fff; flex-shrink:0;
+  }
+  .filter-chip.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+  /* ═══════════════════════════════
+     SCREEN 4: CART & BULK ORDER
+  ═══════════════════════════════ */
+  .cart-item {
+    background:var(--card); border-radius:var(--r); padding:14px; margin-bottom:10px;
+    box-shadow:var(--shadow);
+  }
+  .cart-thumb {
+    width:48px; height:48px; border-radius:10px; background:#E0F7FC;
+    display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
+  }
+  .cart-product-name { font-size:14px; font-weight:700; color:var(--text); }
+  .cart-supplier { font-size:12px; color:var(--text3); }
+  .cart-price { font-size:15px; font-weight:700; color:var(--teal2); }
+  .order-summary {
+    background:var(--navy); border-radius:var(--r); padding:16px; margin-top:8px;
+  }
+  .summary-row { display:flex; justify-content:space-between; margin-bottom:10px; }
+  .summary-label { font-size:13px; color:rgba(255,255,255,0.6); }
+  .summary-val { font-size:13px; font-weight:600; color:#fff; }
+  .summary-total { font-size:17px; font-weight:700; color:var(--teal); }
+  .bulk-banner {
+    background:linear-gradient(135deg,#E0F7FC,#B3F5E3); border-radius:var(--r2);
+    padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:12px;
+  }
+  .bulk-banner-icon { font-size:24px; }
+  .bulk-banner-text { font-size:12px; color:var(--navy); font-weight:600; }
+  .bulk-banner-discount { font-size:16px; font-weight:800; color:var(--teal2); }
+
+  /* ═══════════════════════════════
+     SCREEN 5: DIGITAL INVOICE
+  ═══════════════════════════════ */
+  .invoice-wrap {
+    background:var(--card); margin:12px; border-radius:var(--r);
+    box-shadow:var(--shadow2); overflow:hidden;
+  }
+  .invoice-header {
+    background:var(--navy); padding:20px; position:relative; overflow:hidden;
+  }
+  .invoice-header::before {
+    content:''; position:absolute; right:-30px; top:-30px;
+    width:120px; height:120px; border-radius:50%;
+    background:rgba(0,180,216,0.15);
+  }
+  .invoice-logo { font-size:22px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+  .invoice-logo span { color:var(--teal); }
+  .invoice-num { font-family:'DM Mono',monospace; font-size:11px; color:rgba(255,255,255,0.5); }
+  .invoice-status-badge {
+    position:absolute; right:20px; top:20px; background:var(--mint);
+    color:var(--navy); font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px;
+  }
+  .invoice-parties { display:flex; padding:16px; gap:12px; }
+  .invoice-party { flex:1; }
+  .party-label { font-size:10px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px; }
+  .party-name { font-size:13px; font-weight:700; color:var(--text); }
+  .party-detail { font-size:11px; color:var(--text2); line-height:1.4; }
+  .invoice-table { padding:0 16px 16px; }
+  .inv-row {
+    display:flex; font-size:12px; padding:10px 0; border-bottom:1px solid var(--border);
+    align-items:center;
+  }
+  .inv-row:last-child { border-bottom:none; }
+  .inv-head { font-weight:700; color:var(--text2); font-size:11px; }
+  .inv-col1 { flex:2; color:var(--text); font-weight:500; }
+  .inv-col2 { flex:1; text-align:center; color:var(--text2); }
+  .inv-col3 { flex:1; text-align:right; color:var(--teal2); font-weight:700; }
+  .invoice-totals { padding:16px; background:var(--bg); }
+  .inv-total-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; }
+  .inv-grand { font-size:17px; font-weight:800; }
+  .inv-grand .inv-grand-val { color:var(--teal2); }
+  .invoice-footer { padding:16px; border-top:2px dashed var(--border); }
+  .qr-mock {
+    width:64px; height:64px; background:var(--navy); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:8px;
+    color:rgba(255,255,255,0.4); text-align:center; line-height:1.3;
+    font-family:'DM Mono',monospace;
+  }
+
+  /* ═══════════════════════════════
+     SCREEN 6: DELIVERY TRACKING
+  ═══════════════════════════════ */
+  .track-map {
+    height:220px; background:linear-gradient(135deg,#E8F4F9,#D1EDF7);
+    position:relative; overflow:hidden; border-radius:var(--r) var(--r) 0 0;
+  }
+  .track-map-bg {
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(0,180,216,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,216,0.05) 1px, transparent 1px);
+    background-size:30px 30px;
+  }
+  .track-route {
+    position:absolute; left:20%; top:30%; width:60%; height:2px;
+    background:var(--teal); border-radius:2px;
+  }
+  .track-route::before {
+    content:''; position:absolute; left:-4px; top:-4px;
+    width:10px; height:10px; background:var(--mint); border-radius:50%;
+    border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .track-route::after {
+    content:''; position:absolute; right:-4px; top:-4px;
+    width:10px; height:10px; background:var(--red); border-radius:50%;
+    border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .track-truck {
+    position:absolute; left:50%; top:calc(30% - 16px); transform:translateX(-50%);
+    font-size:28px; animation:truckMove 3s ease-in-out infinite;
+  }
+  @keyframes truckMove {
+    0%,100%{transform:translateX(-50%) translateX(-40px)}
+    50%{transform:translateX(-50%) translateX(40px)}
+  }
+  .track-eta {
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    background:#fff; border-radius:20px; padding:6px 14px;
+    font-size:12px; font-weight:700; color:var(--navy); box-shadow:var(--shadow);
+    white-space:nowrap;
+  }
+  .track-step {
+    display:flex; align-items:flex-start; gap:12px; padding:14px 0;
+    border-bottom:1px solid var(--border); position:relative;
+  }
+  .track-step:last-child { border-bottom:none; }
+  .track-dot-wrap { display:flex; flex-direction:column; align-items:center; }
+  .track-dot {
+    width:16px; height:16px; border-radius:50%; background:var(--border); flex-shrink:0;
+    margin-top:2px;
+  }
+  .track-dot.done { background:var(--mint); }
+  .track-dot.current { background:var(--teal); box-shadow:0 0 0 4px rgba(0,180,216,0.2); }
+  .track-line { width:2px; flex:1; min-height:24px; background:var(--border); margin-top:4px; }
+  .track-line.done { background:var(--mint); }
+  .track-step-title { font-size:13px; font-weight:700; color:var(--text); }
+  .track-step-sub { font-size:12px; color:var(--text3); margin-top:2px; }
+  .track-step-time { font-size:11px; font-family:'DM Mono',monospace; color:var(--text3); }
+
+  /* ═══════════════════════════════
+     SCREEN 7: PAYMENT & CREDIT
+  ═══════════════════════════════ */
+  .credit-card-visual {
+    background:linear-gradient(135deg,var(--navy),#1a3a6a);
+    border-radius:16px; padding:20px; margin-bottom:16px;
+    position:relative; overflow:hidden; box-shadow:var(--shadow2);
+  }
+  .credit-card-visual::before {
+    content:''; position:absolute; right:-30px; top:-30px;
+    width:150px; height:150px; border-radius:50%; background:rgba(0,180,216,0.1);
+  }
+  .credit-limit-label { font-size:11px; color:rgba(255,255,255,0.5); font-weight:600; letter-spacing:0.6px; text-transform:uppercase; }
+  .credit-limit-val { font-size:30px; font-weight:800; color:#fff; }
+  .credit-avail { font-size:13px; color:rgba(255,255,255,0.6); margin-top:2px; }
+  .credit-progress { height:6px; background:rgba(255,255,255,0.15); border-radius:6px; margin-top:12px; overflow:hidden; }
+  .credit-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--mint)); border-radius:6px; width:35%; }
+  .payment-method {
+    display:flex; align-items:center; gap:12px; padding:14px; background:var(--card);
+    border-radius:var(--r2); margin-bottom:10px; cursor:pointer; box-shadow:var(--shadow);
+    border:2px solid transparent; transition:border-color 0.2s;
+  }
+  .payment-method.selected { border-color:var(--teal); }
+  .pay-icon { width:44px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px; background:var(--bg); }
+  .pay-name { font-size:14px; font-weight:600; color:var(--text); }
+  .pay-sub { font-size:11px; color:var(--text3); }
+  .radio-dot {
+    width:20px; height:20px; border-radius:50%; border:2px solid var(--border);
+    margin-left:auto; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .radio-dot.selected::after {
+    content:''; width:10px; height:10px; background:var(--teal); border-radius:50%;
+  }
+  .payment-method.selected .radio-dot { border-color:var(--teal); }
+
+  /* ═══════════════════════════════
+     SCREEN 8: ANALYTICS DASHBOARD
+  ═══════════════════════════════ */
+  .analytics-header { background:var(--navy); padding:52px 20px 24px; }
+  .analytics-header h2 { color:#fff; font-size:20px; font-weight:700; }
+  .analytics-header p { color:rgba(255,255,255,0.5); font-size:13px; }
+  .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:16px; }
+  .kpi-card {
+    background:var(--card); border-radius:var(--r); padding:16px;
+    box-shadow:var(--shadow);
+  }
+  .kpi-icon { font-size:22px; margin-bottom:8px; }
+  .kpi-val { font-size:22px; font-weight:800; color:var(--text); }
+  .kpi-lbl { font-size:11px; color:var(--text2); margin-top:2px; }
+  .kpi-change { font-size:11px; font-weight:600; margin-top:4px; }
+  .kpi-change.up { color:var(--mint); }
+  .kpi-change.down { color:var(--red); }
+  .chart-wrap {
+    background:var(--card); border-radius:var(--r); padding:16px; margin:0 16px 12px;
+    box-shadow:var(--shadow);
+  }
+  .chart-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; }
+  .bar-chart { display:flex; align-items:flex-end; gap:6px; height:80px; }
+  .bar {
+    flex:1; border-radius:4px 4px 0 0;
+    background:linear-gradient(to top,var(--teal),var(--teal2));
+    min-height:4px; position:relative; cursor:pointer; transition:opacity 0.2s;
+  }
+  .bar:hover { opacity:0.8; }
+  .bar.highlight { background:linear-gradient(to top,var(--mint),#02a07a); }
+  .bar-label { font-size:10px; color:var(--text3); text-align:center; margin-top:4px; }
+  .top-product {
+    display:flex; align-items:center; gap:10px; padding:10px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .top-product:last-child { border-bottom:none; }
+  .top-rank { font-size:12px; font-weight:800; color:var(--text3); width:20px; }
+  .top-name { font-size:13px; font-weight:600; color:var(--text); flex:1; }
+  .top-val { font-size:13px; font-weight:700; color:var(--teal2); }
+  .top-bar { height:3px; background:var(--border); border-radius:3px; margin-top:4px; }
+  .top-bar-fill { height:100%; border-radius:3px; background:var(--teal); }
+
+  /* ═══════════════════════════════
+     SCREEN 9: ORDER HISTORY
+  ═══════════════════════════════ */
+  .order-card {
+    background:var(--card); border-radius:var(--r); padding:14px; margin-bottom:10px;
+    box-shadow:var(--shadow); cursor:pointer;
+  }
+  .order-num { font-size:11px; font-family:'DM Mono',monospace; color:var(--text3); }
+  .order-date { font-size:11px; color:var(--text3); }
+  .order-supplier { font-size:14px; font-weight:700; color:var(--text); }
+  .order-items { font-size:12px; color:var(--text2); }
+  .order-amt { font-size:16px; font-weight:800; color:var(--teal2); }
+
+  /* ═══════════════════════════════
+     UTILITY
+  ═══════════════════════════════ */
+  .p16 { padding:16px; }
+  .p12 { padding:12px; }
+  .px16 { padding-left:16px; padding-right:16px; }
+  .mt8 { margin-top:8px; }
+  .mt12 { margin-top:12px; }
+  .mt16 { margin-top:16px; }
+  .mb8 { margin-bottom:8px; }
+  .mb12 { margin-bottom:12px; }
+  .row { display:flex; align-items:center; }
+  .row-sb { display:flex; align-items:center; justify-content:space-between; }
+  .flex1 { flex:1; }
+  .gap8 { gap:8px; }
+  .gap12 { gap:12px; }
+  .bold { font-weight:700; }
+  .text-sm { font-size:12px; }
+  .text-xs { font-size:11px; }
+  .text2 { color:var(--text2); }
+  .text3 { color:var(--text3); }
+  .teal { color:var(--teal2); }
+  .mint-c { color:#059669; }
+  .red-c { color:var(--red); }
+
+  /* Cart badge on nav */
+  .nav-cart-wrap { position:relative; }
+  .cart-nav-badge {
+    position:absolute; top:-2px; right:8px; width:16px; height:16px;
+    background:var(--red); border-radius:50%; font-size:9px; font-weight:700;
+    color:#fff; display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Toast */
+  .toast {
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(100px);
+    background:var(--navy); color:#fff; padding:10px 20px; border-radius:20px;
+    font-size:13px; font-weight:600; z-index:999; transition:transform 0.3s;
+    white-space:nowrap; box-shadow:var(--shadow2);
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* Supplier detail header */
+  .supplier-detail-header {
+    background:var(--navy); padding:52px 20px 20px;
+  }
+  .supplier-detail-avatar {
+    width:56px; height:56px; border-radius:16px;
+    background:linear-gradient(135deg,var(--teal),var(--mint));
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+  }
+  .verified-badge {
+    display:inline-flex; align-items:center; gap:4px; background:rgba(6,214,160,0.2);
+    color:var(--mint); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="phone-screen">
+
+      <!-- ═══ SCREEN: LOGIN / KYC ═══ -->
+      <div class="screen active" id="screen-login" style="background:var(--navy)">
+        <div class="login-bg"></div>
+        <div class="status-bar" style="background:transparent">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+
+        <!-- Step 1: Phone number -->
+        <div id="login-step1" class="login-content" style="display:flex">
+          <div class="logo-circle">💊</div>
+          <div class="login-title">PharmaLink B2B</div>
+          <div class="login-sub">India's Pharma Supply Marketplace</div>
+          <div class="step-dots">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+          </div>
+          <div class="login-form">
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;margin-bottom:6px">Mobile Number</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <div style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:14px 12px;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">+91</div>
+              <input class="login-input" style="margin:0;flex:1" placeholder="9876543210" type="tel">
+            </div>
+            <button class="btn btn-navy" style="background:var(--teal);margin-bottom:12px" onclick="showLoginStep(2)">Send OTP →</button>
+            <div style="text-align:center;color:rgba(255,255,255,0.35);font-size:12px">New business? <span style="color:var(--teal);cursor:pointer" onclick="showLoginStep(3)">Register here</span></div>
+          </div>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div id="login-step2" class="login-content" style="display:none">
+          <div style="font-size:40px;margin-bottom:12px">📲</div>
+          <div class="login-title" style="font-size:22px">Enter OTP</div>
+          <div class="login-sub" style="margin-bottom:24px">Sent to +91 98765 43210</div>
+          <div class="step-dots">
+            <div class="step-dot"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+          </div>
+          <div class="login-form">
+            <div class="otp-row">
+              <input class="otp-box" maxlength="1" value="4">
+              <input class="otp-box" maxlength="1" value="8">
+              <input class="otp-box" maxlength="1" value="2">
+              <input class="otp-box" maxlength="1" value="9">
+            </div>
+            <button class="btn" onclick="goToScreen('screen-home')">Verify & Login →</button>
+            <div style="text-align:center;color:rgba(255,255,255,0.35);font-size:12px;margin-top:12px">Resend OTP in <span style="color:var(--teal)">00:28</span></div>
+          </div>
+        </div>
+
+        <!-- Step 3: KYC -->
+        <div id="login-step3" class="login-content" style="display:none">
+          <div style="font-size:40px;margin-bottom:8px">🏢</div>
+          <div class="login-title" style="font-size:20px">Business KYC</div>
+          <div class="login-sub">Register your pharmacy / distributor account</div>
+          <div class="step-dots">
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot active"></div>
+          </div>
+          <div class="login-form" style="width:100%">
+            <input class="login-input" placeholder="Business Name" style="margin-bottom:10px">
+            <input class="login-input" placeholder="GSTIN (optional)" style="margin-bottom:10px">
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;margin-bottom:8px">Business Type</div>
+            <div class="kyc-pills">
+              <div class="kyc-pill selected">🏪 Pharmacy</div>
+              <div class="kyc-pill" onclick="selectKyc(this)">🏥 Hospital</div>
+              <div class="kyc-pill" onclick="selectKyc(this)">🚚 Distributor</div>
+              <div class="kyc-pill" onclick="selectKyc(this)">🏭 Wholesaler</div>
+            </div>
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;margin-bottom:8px">Drug License Upload</div>
+            <div style="border:2px dashed rgba(255,255,255,0.2);border-radius:10px;padding:16px;text-align:center;margin-bottom:14px;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer">
+              📄 Tap to upload license
+            </div>
+            <button class="btn" onclick="goToScreen('screen-home')">Submit for Verification ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: HOME / SUPPLIER DISCOVERY ═══ -->
+      <div class="screen" id="screen-home">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="content">
+          <div class="home-header">
+            <div class="greeting">Good morning,</div>
+            <div class="greeting-name">MedCare Pharmacy 👋</div>
+            <div class="search-bar">
+              <span>🔍</span>
+              <input placeholder="Search drugs, suppliers, SKUs...">
+              <span style="font-size:14px;color:var(--text3)">⚙️</span>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card" onclick="goToScreen('screen-orders')">
+              <div class="stat-num">12</div>
+              <div class="stat-lbl">Active Orders</div>
+            </div>
+            <div class="stat-card" onclick="goToScreen('screen-payment')">
+              <div class="stat-num">₹45K</div>
+              <div class="stat-lbl">Credit Avail.</div>
+            </div>
+            <div class="stat-card" onclick="goToScreen('screen-analytics')">
+              <div class="stat-num">↑18%</div>
+              <div class="stat-lbl">This Month</div>
+            </div>
+          </div>
+
+          <!-- Alert banner -->
+          <div style="margin:4px 16px 4px;background:#FEF3E2;border-radius:var(--r2);padding:12px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">⚠️</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#D97706">Reorder Alert</div>
+              <div style="font-size:11px;color:#92400E">Paracetamol 500mg — stock low (8 strips)</div>
+            </div>
+            <button class="btn btn-sm btn-mint" style="font-size:11px;padding:6px 12px;flex-shrink:0" onclick="goToScreen('screen-stock')">Order</button>
+          </div>
+
+          <div style="padding:16px 16px 4px">
+            <div class="section-label">Categories</div>
+          </div>
+          <div class="categories-scroll">
+            <div class="cat-chip active">
+              <div class="cat-chip-icon">💊</div>
+              <div class="cat-chip-label">Tablets</div>
+            </div>
+            <div class="cat-chip">
+              <div class="cat-chip-icon">💉</div>
+              <div class="cat-chip-label">Injectables</div>
+            </div>
+            <div class="cat-chip">
+              <div class="cat-chip-icon">🧴</div>
+              <div class="cat-chip-label">Syrups</div>
+            </div>
+            <div class="cat-chip">
+              <div class="cat-chip-icon">🩹</div>
+              <div class="cat-chip-label">Surgical</div>
+            </div>
+            <div class="cat-chip">
+              <div class="cat-chip-icon">🌿</div>
+              <div class="cat-chip-label">Ayurvedic</div>
+            </div>
+          </div>
+
+          <div style="padding:4px 16px 8px">
+            <div class="section-label">Verified Suppliers Near You</div>
+          </div>
+          <div class="px16">
+            <div class="supplier-card" onclick="goToScreen('screen-stock')">
+              <div class="card-row" style="margin-bottom:10px">
+                <div class="supplier-avatar">🏭</div>
+                <div class="flex1">
+                  <div class="supplier-name">Sun Pharma Distributors</div>
+                  <div class="supplier-meta">Hyderabad • 1,200+ products</div>
+                  <div class="stars">★★★★★ <span style="color:var(--text3);font-size:11px">4.9 (320 reviews)</span></div>
+                </div>
+                <div style="text-align:right">
+                  <div class="tag tag-mint">Verified</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">4.2 km</div>
+                </div>
+              </div>
+              <div class="row gap8">
+                <div class="tag tag-teal">Next-day delivery</div>
+                <div class="tag tag-mint">Credit available</div>
+                <div class="tag">MOQ: ₹5,000</div>
+              </div>
+            </div>
+
+            <div class="supplier-card" onclick="goToScreen('screen-stock')">
+              <div class="card-row" style="margin-bottom:10px">
+                <div class="supplier-avatar" style="background:linear-gradient(135deg,#F4A261,#E76F51)">🔬</div>
+                <div class="flex1">
+                  <div class="supplier-name">Cipla Wholesale Hub</div>
+                  <div class="supplier-meta">Secunderabad • 890+ products</div>
+                  <div class="stars">★★★★☆ <span style="color:var(--text3);font-size:11px">4.7 (210 reviews)</span></div>
+                </div>
+                <div style="text-align:right">
+                  <div class="tag tag-mint">Verified</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">7.8 km</div>
+                </div>
+              </div>
+              <div class="row gap8">
+                <div class="tag tag-teal">Same day available</div>
+                <div class="tag">MOQ: ₹2,500</div>
+              </div>
+            </div>
+
+            <div class="supplier-card" onclick="goToScreen('screen-stock')">
+              <div class="card-row" style="margin-bottom:10px">
+                <div class="supplier-avatar" style="background:linear-gradient(135deg,#6C63FF,#8B80F9)">💊</div>
+                <div class="flex1">
+                  <div class="supplier-name">Lupin Pharma Network</div>
+                  <div class="supplier-meta">Kukatpally • 2,100+ products</div>
+                  <div class="stars">★★★★★ <span style="color:var(--text3);font-size:11px">4.8 (590 reviews)</span></div>
+                </div>
+                <div style="text-align:right">
+                  <div class="tag tag-mint">Verified</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:4px">12.3 km</div>
+                </div>
+              </div>
+              <div class="row gap8">
+                <div class="tag tag-amber">2-day delivery</div>
+                <div class="tag tag-mint">Credit available</div>
+              </div>
+            </div>
+          </div>
+          <div style="height:16px"></div>
+        </div>
+        <!-- Bottom Nav -->
+        <div class="nav-bar">
+          <div class="nav-item active" onclick="goToScreen('screen-home')"><div class="nav-icon">🏠</div>Home</div>
+          <div class="nav-item" onclick="goToScreen('screen-stock')"><div class="nav-icon">📦</div>Stock</div>
+          <div class="nav-item" onclick="goToScreen('screen-cart')">
+            <div class="nav-cart-wrap"><div class="nav-icon">🛒</div><div class="cart-nav-badge">3</div></div>Cart
+          </div>
+          <div class="nav-item" onclick="goToScreen('screen-orders')"><div class="nav-icon">📋</div>Orders</div>
+          <div class="nav-item" onclick="goToScreen('screen-analytics')"><div class="nav-icon">📊</div>Analytics</div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: STOCK & PRICE VIEW ═══ -->
+      <div class="screen" id="screen-stock">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="screen-header">
+          <button class="back-btn" onclick="goBack()">←</button>
+          <div class="header-title">
+            <h2>Sun Pharma Distributors</h2>
+            <p>Live Stock & Prices • Updated 2 min ago</p>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-chip active">All Products</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">💊 Tablets</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">💉 Injectables</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">🧴 Syrups</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">In Stock</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">On Offer</div>
+        </div>
+        <div class="content">
+          <div class="px16" style="padding-top:8px">
+
+            <!-- Product 1 -->
+            <div class="product-card">
+              <div class="row gap12 mb8">
+                <div class="product-img">💊</div>
+                <div class="flex1">
+                  <div class="product-name">Paracetamol IP 500mg</div>
+                  <div class="product-sku">SKU: SUN-PCT-500 • Strip of 10</div>
+                  <div class="row gap8 mt8">
+                    <div class="tag tag-mint">In Stock</div>
+                    <div class="tag tag-amber">🔥 Offer</div>
+                  </div>
+                </div>
+              </div>
+              <div class="row-sb">
+                <div>
+                  <div class="product-price">₹12.50 <span style="font-size:11px;font-weight:400;color:var(--text3)">/strip</span></div>
+                  <div class="product-mrp">MRP ₹18.00</div>
+                </div>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">10</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <button class="btn btn-sm" onclick="addToCartAnim(this)">+ Cart</button>
+              </div>
+              <div class="stock-bar-wrap">
+                <div class="row-sb" style="margin-bottom:4px">
+                  <span class="text-xs text3">Stock: 2,400 strips</span>
+                  <span class="text-xs teal">Bulk: 30% off @ 500+</span>
+                </div>
+                <div class="stock-bar"><div class="stock-fill" style="width:72%"></div></div>
+              </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+              <div class="row gap12 mb8">
+                <div class="product-img">💉</div>
+                <div class="flex1">
+                  <div class="product-name">Amoxicillin 500mg Capsules</div>
+                  <div class="product-sku">SKU: SUN-AMX-500 • Strip of 10</div>
+                  <div class="row gap8 mt8">
+                    <div class="tag tag-mint">In Stock</div>
+                  </div>
+                </div>
+              </div>
+              <div class="row-sb">
+                <div>
+                  <div class="product-price">₹28.00 <span style="font-size:11px;font-weight:400;color:var(--text3)">/strip</span></div>
+                  <div class="product-mrp">MRP ₹42.00</div>
+                </div>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">5</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <button class="btn btn-sm" onclick="addToCartAnim(this)">+ Cart</button>
+              </div>
+              <div class="stock-bar-wrap">
+                <div class="row-sb" style="margin-bottom:4px">
+                  <span class="text-xs text3">Stock: 840 strips</span>
+                  <span class="text-xs" style="color:var(--amber)">Medium stock</span>
+                </div>
+                <div class="stock-bar"><div class="stock-fill med" style="width:38%"></div></div>
+              </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+              <div class="row gap12 mb8">
+                <div class="product-img">🧴</div>
+                <div class="flex1">
+                  <div class="product-name">Cough Syrup (Benadryl) 100ml</div>
+                  <div class="product-sku">SKU: SUN-BEN-100 • Bottle</div>
+                  <div class="row gap8 mt8">
+                    <div class="tag tag-red">Low Stock</div>
+                  </div>
+                </div>
+              </div>
+              <div class="row-sb">
+                <div>
+                  <div class="product-price">₹62.00 <span style="font-size:11px;font-weight:400;color:var(--text3)">/btl</span></div>
+                  <div class="product-mrp">MRP ₹95.00</div>
+                </div>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">12</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <button class="btn btn-sm" onclick="addToCartAnim(this)">+ Cart</button>
+              </div>
+              <div class="stock-bar-wrap">
+                <div class="row-sb" style="margin-bottom:4px">
+                  <span class="text-xs text3">Stock: 48 bottles</span>
+                  <span class="text-xs red-c">⚠ Order soon</span>
+                </div>
+                <div class="stock-bar"><div class="stock-fill low" style="width:12%"></div></div>
+              </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+              <div class="row gap12 mb8">
+                <div class="product-img">💊</div>
+                <div class="flex1">
+                  <div class="product-name">Metformin 500mg SR Tablets</div>
+                  <div class="product-sku">SKU: SUN-MET-500 • Strip of 15</div>
+                  <div class="row gap8 mt8">
+                    <div class="tag tag-mint">In Stock</div>
+                    <div class="tag tag-teal">New Batch</div>
+                  </div>
+                </div>
+              </div>
+              <div class="row-sb">
+                <div>
+                  <div class="product-price">₹18.50 <span style="font-size:11px;font-weight:400;color:var(--text3)">/strip</span></div>
+                  <div class="product-mrp">MRP ₹28.00</div>
+                </div>
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">20</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <button class="btn btn-sm" onclick="addToCartAnim(this)">+ Cart</button>
+              </div>
+              <div class="stock-bar-wrap">
+                <div class="row-sb" style="margin-bottom:4px">
+                  <span class="text-xs text3">Stock: 5,200 strips</span>
+                  <span class="text-xs teal">Bulk: 25% off @ 300+</span>
+                </div>
+                <div class="stock-bar"><div class="stock-fill" style="width:88%"></div></div>
+              </div>
+            </div>
+
+          </div>
+          <div style="height:16px"></div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goToScreen('screen-home')"><div class="nav-icon">🏠</div>Home</div>
+          <div class="nav-item active" onclick="goToScreen('screen-stock')"><div class="nav-icon">📦</div>Stock</div>
+          <div class="nav-item" onclick="goToScreen('screen-cart')">
+            <div class="nav-cart-wrap"><div class="nav-icon">🛒</div><div class="cart-nav-badge">3</div></div>Cart
+          </div>
+          <div class="nav-item" onclick="goToScreen('screen-orders')"><div class="nav-icon">📋</div>Orders</div>
+          <div class="nav-item" onclick="goToScreen('screen-analytics')"><div class="nav-icon">📊</div>Analytics</div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: CART & BULK ORDER ═══ -->
+      <div class="screen" id="screen-cart">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="screen-header">
+          <button class="back-btn" onclick="goBack()">←</button>
+          <div class="header-title">
+            <h2>Cart & Bulk Order</h2>
+            <p>Sun Pharma Distributors • 3 items</p>
+          </div>
+        </div>
+        <div class="content">
+          <div class="p16">
+
+            <!-- Bulk discount banner -->
+            <div class="bulk-banner">
+              <div class="bulk-banner-icon">🎉</div>
+              <div class="flex1">
+                <div class="bulk-banner-text">Bulk Discount Applied!</div>
+                <div style="font-size:11px;color:var(--navy);opacity:0.6">Order ₹8,000+ • Save extra 8%</div>
+              </div>
+              <div class="bulk-banner-discount">-8%</div>
+            </div>
+
+            <!-- Cart Items -->
+            <div class="section-label">Order Items</div>
+
+            <div class="cart-item">
+              <div class="row-sb mb8">
+                <div class="row gap10">
+                  <div class="cart-thumb">💊</div>
+                  <div>
+                    <div class="cart-product-name">Paracetamol IP 500mg</div>
+                    <div class="cart-supplier">SKU: SUN-PCT-500</div>
+                  </div>
+                </div>
+                <span style="cursor:pointer;color:var(--text3);font-size:18px">×</span>
+              </div>
+              <div class="row-sb">
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">500</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <div style="text-align:right">
+                  <div class="cart-price">₹6,250</div>
+                  <div class="text-xs text3">₹12.50 × 500 strips</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cart-item">
+              <div class="row-sb mb8">
+                <div class="row gap10">
+                  <div class="cart-thumb">💉</div>
+                  <div>
+                    <div class="cart-product-name">Amoxicillin 500mg</div>
+                    <div class="cart-supplier">SKU: SUN-AMX-500</div>
+                  </div>
+                </div>
+                <span style="cursor:pointer;color:var(--text3);font-size:18px">×</span>
+              </div>
+              <div class="row-sb">
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">100</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <div style="text-align:right">
+                  <div class="cart-price">₹2,800</div>
+                  <div class="text-xs text3">₹28.00 × 100 strips</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cart-item">
+              <div class="row-sb mb8">
+                <div class="row gap10">
+                  <div class="cart-thumb">🧴</div>
+                  <div>
+                    <div class="cart-product-name">Cough Syrup (Benadryl)</div>
+                    <div class="cart-supplier">SKU: SUN-BEN-100</div>
+                  </div>
+                </div>
+                <span style="cursor:pointer;color:var(--text3);font-size:18px">×</span>
+              </div>
+              <div class="row-sb">
+                <div class="qty-ctrl">
+                  <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                  <div class="qty-val">24</div>
+                  <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+                </div>
+                <div style="text-align:right">
+                  <div class="cart-price">₹1,488</div>
+                  <div class="text-xs text3">₹62.00 × 24 bottles</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delivery option -->
+            <div class="section-label mt12">Delivery Option</div>
+            <div style="display:flex;gap:10px;margin-bottom:16px">
+              <div style="flex:1;background:var(--card);border-radius:var(--r2);padding:12px;border:2px solid var(--teal);box-shadow:var(--shadow);cursor:pointer">
+                <div style="font-size:18px;margin-bottom:4px">🚀</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Express</div>
+                <div style="font-size:11px;color:var(--text3)">Today 6 PM</div>
+                <div style="font-size:12px;font-weight:700;color:var(--teal);margin-top:4px">₹150</div>
+              </div>
+              <div style="flex:1;background:var(--card);border-radius:var(--r2);padding:12px;border:2px solid var(--border);box-shadow:var(--shadow);cursor:pointer">
+                <div style="font-size:18px;margin-bottom:4px">📦</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">Standard</div>
+                <div style="font-size:11px;color:var(--text3)">Tomorrow 10 AM</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text2);margin-top:4px">FREE</div>
+              </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+              <div class="section-label" style="color:rgba(255,255,255,0.4)">Order Summary</div>
+              <div class="summary-row">
+                <div class="summary-label">Subtotal (3 items)</div>
+                <div class="summary-val">₹10,538</div>
+              </div>
+              <div class="summary-row">
+                <div class="summary-label">Bulk Discount (8%)</div>
+                <div class="summary-val" style="color:var(--mint)">−₹843</div>
+              </div>
+              <div class="summary-row">
+                <div class="summary-label">GST (12%)</div>
+                <div class="summary-val">₹1,176</div>
+              </div>
+              <div class="summary-row">
+                <div class="summary-label">Delivery</div>
+                <div class="summary-val" style="color:var(--mint)">FREE</div>
+              </div>
+              <div class="divider" style="border-color:rgba(255,255,255,0.1)"></div>
+              <div class="summary-row">
+                <div class="summary-label" style="font-size:15px;font-weight:700;color:#fff">Total</div>
+                <div class="summary-total">₹10,871</div>
+              </div>
+              <div style="text-align:center;margin-top:4px;font-size:11px;color:rgba(255,255,255,0.4)">You save ₹843 on this order 🎉</div>
+            </div>
+            <div style="height:12px"></div>
+            <button class="btn btn-mint" style="color:var(--navy)" onclick="goToScreen('screen-payment')">Proceed to Payment →</button>
+          </div>
+          <div style="height:16px"></div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goToScreen('screen-home')"><div class="nav-icon">🏠</div>Home</div>
+          <div class="nav-item" onclick="goToScreen('screen-stock')"><div class="nav-icon">📦</div>Stock</div>
+          <div class="nav-item active" onclick="goToScreen('screen-cart')">
+            <div class="nav-cart-wrap"><div class="nav-icon">🛒</div><div class="cart-nav-badge">3</div></div>Cart
+          </div>
+          <div class="nav-item" onclick="goToScreen('screen-orders')"><div class="nav-icon">📋</div>Orders</div>
+          <div class="nav-item" onclick="goToScreen('screen-analytics')"><div class="nav-icon">📊</div>Analytics</div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: PAYMENT & CREDIT ═══ -->
+      <div class="screen" id="screen-payment">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="screen-header">
+          <button class="back-btn" onclick="goBack()">←</button>
+          <div class="header-title">
+            <h2>Payment & Credit</h2>
+            <p>Order total ₹10,871</p>
+          </div>
+        </div>
+        <div class="content">
+          <div class="p16">
+
+            <!-- Credit card visual -->
+            <div class="credit-card-visual">
+              <div class="credit-limit-label">Business Credit Line</div>
+              <div class="credit-limit-val">₹45,000</div>
+              <div class="credit-avail">Available • 30-day payment terms</div>
+              <div class="credit-progress">
+                <div class="credit-fill"></div>
+              </div>
+              <div class="row-sb mt8">
+                <span style="font-size:11px;color:rgba(255,255,255,0.4)">Used: ₹15,750</span>
+                <span style="font-size:11px;color:var(--mint)">Available: ₹29,250</span>
+              </div>
+            </div>
+
+            <div class="section-label">Choose Payment Method</div>
+
+            <div class="payment-method selected" onclick="selectPayment(this)">
+              <div class="pay-icon">💳</div>
+              <div class="flex1">
+                <div class="pay-name">Business Credit (30-day)</div>
+                <div class="pay-sub">Pay by June 25, 2026 • No interest</div>
+              </div>
+              <div class="radio-dot selected"></div>
+            </div>
+
+            <div class="payment-method" onclick="selectPayment(this)">
+              <div class="pay-icon">🏦</div>
+              <div class="flex1">
+                <div class="pay-name">NEFT / Bank Transfer</div>
+                <div class="pay-sub">Instant verification • A/c on file</div>
+              </div>
+              <div class="radio-dot"></div>
+            </div>
+
+            <div class="payment-method" onclick="selectPayment(this)">
+              <div class="pay-icon">📱</div>
+              <div class="flex1">
+                <div class="pay-name">UPI Payment</div>
+                <div class="pay-sub">medcare@okaxis • Instant</div>
+              </div>
+              <div class="radio-dot"></div>
+            </div>
+
+            <div class="payment-method" onclick="selectPayment(this)">
+              <div class="pay-icon">💵</div>
+              <div class="flex1">
+                <div class="pay-name">Cash on Delivery</div>
+                <div class="pay-sub">Pay when goods arrive</div>
+              </div>
+              <div class="radio-dot"></div>
+            </div>
+
+            <div class="section-label mt12">Payment Summary</div>
+            <div class="card">
+              <div class="row-sb mb8"><span class="text-sm text2">Order Amount</span><span class="text-sm bold">₹10,871</span></div>
+              <div class="row-sb mb8"><span class="text-sm text2">Processing Fee</span><span class="text-sm bold" style="color:var(--mint)">FREE</span></div>
+              <div class="divider"></div>
+              <div class="row-sb"><span class="bold" style="font-size:15px">Total Due</span><span style="font-size:18px;font-weight:800;color:var(--teal2)">₹10,871</span></div>
+            </div>
+
+            <button class="btn btn-navy mt12" onclick="placeOrder()">🔒 Confirm & Place Order</button>
+          </div>
+          <div style="height:16px"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: DIGITAL INVOICE ═══ -->
+      <div class="screen" id="screen-invoice">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div style="background:var(--navy);padding:52px 20px 16px;display:flex;align-items:center;gap:10px">
+          <button class="back-btn" style="position:static;transform:none" onclick="goToScreen('screen-orders')">←</button>
+          <div>
+            <div style="color:#fff;font-size:18px;font-weight:700">Digital Invoice</div>
+            <div style="color:rgba(255,255,255,0.5);font-size:12px">INV-2026-05-4821</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-sm btn-outline" style="width:auto;color:#fff;border-color:rgba(255,255,255,0.3)" onclick="showToast('📥 Invoice downloaded!')">↓ PDF</button>
+            <button class="btn btn-sm" style="width:auto;background:var(--mint);color:var(--navy)" onclick="showToast('📤 Shared!')">Share</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="invoice-wrap">
+            <!-- Invoice Header -->
+            <div class="invoice-header">
+              <div class="invoice-logo">Pharma<span>Link</span></div>
+              <div class="invoice-num">Invoice #INV-2026-05-4821</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">Date: 26 May 2026 | Due: 25 Jun 2026</div>
+              <div class="invoice-status-badge">✓ PAID</div>
+            </div>
+
+            <!-- Parties -->
+            <div class="invoice-parties">
+              <div class="invoice-party">
+                <div class="party-label">From (Supplier)</div>
+                <div class="party-name">Sun Pharma Distributors</div>
+                <div class="party-detail">GSTIN: 36ABCDE1234F1Z5<br>Hyderabad, Telangana<br>DL No: TG-HYD-2021-0034</div>
+              </div>
+              <div style="width:1px;background:var(--border)"></div>
+              <div class="invoice-party" style="padding-left:12px">
+                <div class="party-label">To (Buyer)</div>
+                <div class="party-name">MedCare Pharmacy</div>
+                <div class="party-detail">GSTIN: 36FGHIJ5678K2L6<br>Kukatpally, Hyderabad<br>DL No: TG-KKP-2019-0087</div>
+              </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="invoice-table">
+              <div class="inv-row inv-head">
+                <div class="inv-col1">Item / SKU</div>
+                <div class="inv-col2">Qty</div>
+                <div class="inv-col3">Amount</div>
+              </div>
+              <div class="inv-row">
+                <div class="inv-col1">
+                  <div style="font-weight:600;font-size:12px">Paracetamol IP 500mg</div>
+                  <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">SUN-PCT-500 • Batch: B2604A</div>
+                  <div style="font-size:10px;color:var(--text3)">Exp: Jun 2028 | ₹12.50/strip</div>
+                </div>
+                <div class="inv-col2">500</div>
+                <div class="inv-col3">₹6,250</div>
+              </div>
+              <div class="inv-row">
+                <div class="inv-col1">
+                  <div style="font-weight:600;font-size:12px">Amoxicillin 500mg</div>
+                  <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">SUN-AMX-500 • Batch: B2603C</div>
+                  <div style="font-size:10px;color:var(--text3)">Exp: Mar 2028 | ₹28.00/strip</div>
+                </div>
+                <div class="inv-col2">100</div>
+                <div class="inv-col3">₹2,800</div>
+              </div>
+              <div class="inv-row">
+                <div class="inv-col1">
+                  <div style="font-weight:600;font-size:12px">Benadryl Cough Syrup</div>
+                  <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">SUN-BEN-100 • Batch: B2605B</div>
+                  <div style="font-size:10px;color:var(--text3)">Exp: Dec 2027 | ₹62.00/btl</div>
+                </div>
+                <div class="inv-col2">24</div>
+                <div class="inv-col3">₹1,488</div>
+              </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="invoice-totals">
+              <div class="inv-total-row"><span class="text2">Subtotal</span><span>₹10,538</span></div>
+              <div class="inv-total-row"><span class="text2">Bulk Discount (8%)</span><span class="mint-c">−₹843</span></div>
+              <div class="inv-total-row"><span class="text2">CGST (6%)</span><span>₹588</span></div>
+              <div class="inv-total-row"><span class="text2">SGST (6%)</span><span>₹588</span></div>
+              <div class="divider"></div>
+              <div class="inv-total-row inv-grand">
+                <span>Total Amount</span>
+                <span class="inv-grand-val">₹10,871</span>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:6px">Payment: Business Credit • Due 25 Jun 2026</div>
+            </div>
+
+            <!-- Footer -->
+            <div class="invoice-footer">
+              <div class="row-sb">
+                <div>
+                  <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px">Scan to verify</div>
+                  <div class="qr-mock">QR<br>CODE</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Digitally verified by PharmaLink</div>
+                  <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)">TXN: PL26054821XZ</div>
+                  <div class="tag tag-mint" style="margin-top:6px">✓ GST Compliant</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="height:16px"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: DELIVERY TRACKING ═══ -->
+      <div class="screen" id="screen-tracking">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="screen-header">
+          <button class="back-btn" onclick="goBack()">←</button>
+          <div class="header-title">
+            <h2>Delivery Tracking</h2>
+            <p>Order #ORD-2026-4821</p>
+          </div>
+        </div>
+        <div class="content">
+          <!-- Map area -->
+          <div class="track-map">
+            <div class="track-map-bg"></div>
+            <div class="track-eta">🕐 Arriving in ~45 min</div>
+            <div class="track-route">
+              <div class="track-truck">🚐</div>
+            </div>
+          </div>
+
+          <div class="p16">
+            <!-- Driver info -->
+            <div class="card mb12">
+              <div class="row gap12">
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--mint));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👨</div>
+                <div class="flex1">
+                  <div style="font-size:14px;font-weight:700;color:var(--text)">Ramesh Kumar</div>
+                  <div class="text-xs text3">Delivery Agent • Vehicle: TS 09 AB 1234</div>
+                  <div class="stars" style="margin-top:2px">★★★★★ <span style="color:var(--text3);font-size:11px">4.8</span></div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-sm btn-outline" style="width:40px;height:40px;padding:0;font-size:18px;border-radius:50%">📞</button>
+                  <button class="btn btn-sm" style="width:40px;height:40px;padding:0;font-size:18px;border-radius:50%">💬</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-label">Shipment Status</div>
+
+            <!-- Tracking steps -->
+            <div class="card">
+              <div class="track-step">
+                <div class="track-dot-wrap">
+                  <div class="track-dot done"></div>
+                  <div class="track-line done"></div>
+                </div>
+                <div class="flex1" style="padding-left:12px">
+                  <div class="track-step-title">Order Confirmed ✓</div>
+                  <div class="track-step-sub">Sun Pharma accepted your order</div>
+                </div>
+                <div class="track-step-time">9:15 AM</div>
+              </div>
+
+              <div class="track-step">
+                <div class="track-dot-wrap">
+                  <div class="track-dot done"></div>
+                  <div class="track-line done"></div>
+                </div>
+                <div class="flex1" style="padding-left:12px">
+                  <div class="track-step-title">Invoice Generated ✓</div>
+                  <div class="track-step-sub">Digital invoice #INV-2026-05-4821 issued</div>
+                </div>
+                <div class="track-step-time">9:20 AM</div>
+              </div>
+
+              <div class="track-step">
+                <div class="track-dot-wrap">
+                  <div class="track-dot done"></div>
+                  <div class="track-line done"></div>
+                </div>
+                <div class="flex1" style="padding-left:12px">
+                  <div class="track-step-title">Packed & Dispatched ✓</div>
+                  <div class="track-step-sub">3 items packed, QC check passed</div>
+                </div>
+                <div class="track-step-time">10:05 AM</div>
+              </div>
+
+              <div class="track-step">
+                <div class="track-dot-wrap">
+                  <div class="track-dot current"></div>
+                  <div class="track-line"></div>
+                </div>
+                <div class="flex1" style="padding-left:12px">
+                  <div class="track-step-title" style="color:var(--teal)">Out for Delivery 🚐</div>
+                  <div class="track-step-sub">Ramesh is 12 km away from your location</div>
+                </div>
+                <div class="track-step-time">10:45 AM</div>
+              </div>
+
+              <div class="track-step">
+                <div class="track-dot-wrap">
+                  <div class="track-dot"></div>
+                </div>
+                <div class="flex1" style="padding-left:12px">
+                  <div class="track-step-title" style="color:var(--text3)">Delivered</div>
+                  <div class="track-step-sub" style="color:var(--text3)">Expected by 12:00 PM today</div>
+                </div>
+                <div class="track-step-time" style="color:var(--text3)">ETA</div>
+              </div>
+            </div>
+
+            <!-- Order summary -->
+            <div class="section-label mt12">Order Contents</div>
+            <div class="card">
+              <div class="row-sb mb8"><span class="text-sm">💊 Paracetamol 500mg</span><span class="text-sm bold">500 strips</span></div>
+              <div class="row-sb mb8"><span class="text-sm">💉 Amoxicillin 500mg</span><span class="text-sm bold">100 strips</span></div>
+              <div class="row-sb"><span class="text-sm">🧴 Benadryl Syrup 100ml</span><span class="text-sm bold">24 bottles</span></div>
+            </div>
+
+            <button class="btn btn-outline mt12" onclick="goToScreen('screen-invoice')">📄 View Invoice</button>
+          </div>
+          <div style="height:16px"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: ORDER HISTORY ═══ -->
+      <div class="screen" id="screen-orders">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="analytics-header">
+          <h2>Order History</h2>
+          <p>All your purchase records</p>
+        </div>
+        <div class="filter-row">
+          <div class="filter-chip active">All Orders</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">Delivered</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">In Transit</div>
+          <div class="filter-chip" onclick="toggleFilter(this)">Pending</div>
+        </div>
+        <div class="content">
+          <div class="p16">
+
+            <div class="order-card" onclick="goToScreen('screen-tracking')">
+              <div class="row-sb mb8">
+                <div>
+                  <div class="order-num">#ORD-2026-4821</div>
+                  <div class="order-supplier">Sun Pharma Distributors</div>
+                </div>
+                <div class="tag tag-amber">In Transit 🚐</div>
+              </div>
+              <div class="order-items">3 items • Paracetamol, Amoxicillin, Benadryl</div>
+              <div class="row-sb mt8">
+                <span class="order-date text-xs text3">26 May 2026 • Credit</span>
+                <span class="order-amt">₹10,871</span>
+              </div>
+            </div>
+
+            <div class="order-card" onclick="goToScreen('screen-invoice')">
+              <div class="row-sb mb8">
+                <div>
+                  <div class="order-num">#ORD-2026-4780</div>
+                  <div class="order-supplier">Cipla Wholesale Hub</div>
+                </div>
+                <div class="tag tag-mint">Delivered ✓</div>
+              </div>
+              <div class="order-items">5 items • Metformin, Atorvastatin, +3 more</div>
+              <div class="row-sb mt8">
+                <span class="order-date text-xs text3">20 May 2026 • UPI</span>
+                <span class="order-amt">₹24,360</span>
+              </div>
+            </div>
+
+            <div class="order-card">
+              <div class="row-sb mb8">
+                <div>
+                  <div class="order-num">#ORD-2026-4701</div>
+                  <div class="order-supplier">Lupin Pharma Network</div>
+                </div>
+                <div class="tag tag-mint">Delivered ✓</div>
+              </div>
+              <div class="order-items">2 items • Cetirizine, Pantoprazole</div>
+              <div class="row-sb mt8">
+                <span class="order-date text-xs text3">15 May 2026 • Credit</span>
+                <span class="order-amt">₹8,940</span>
+              </div>
+            </div>
+
+            <div class="order-card">
+              <div class="row-sb mb8">
+                <div>
+                  <div class="order-num">#ORD-2026-4652</div>
+                  <div class="order-supplier">Sun Pharma Distributors</div>
+                </div>
+                <div class="tag tag-mint">Delivered ✓</div>
+              </div>
+              <div class="order-items">7 items • Antibiotics bundle</div>
+              <div class="row-sb mt8">
+                <span class="order-date text-xs text3">10 May 2026 • NEFT</span>
+                <span class="order-amt">₹32,500</span>
+              </div>
+            </div>
+
+            <div class="order-card">
+              <div class="row-sb mb8">
+                <div>
+                  <div class="order-num">#ORD-2026-4590</div>
+                  <div class="order-supplier">Cipla Wholesale Hub</div>
+                </div>
+                <div class="tag tag-red">Cancelled ×</div>
+              </div>
+              <div class="order-items">1 item • Insulin (out of stock)</div>
+              <div class="row-sb mt8">
+                <span class="order-date text-xs text3">5 May 2026 • Refunded</span>
+                <span class="order-amt" style="color:var(--text3)">₹4,200</span>
+              </div>
+            </div>
+
+          </div>
+          <div style="height:16px"></div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goToScreen('screen-home')"><div class="nav-icon">🏠</div>Home</div>
+          <div class="nav-item" onclick="goToScreen('screen-stock')"><div class="nav-icon">📦</div>Stock</div>
+          <div class="nav-item" onclick="goToScreen('screen-cart')">
+            <div class="nav-cart-wrap"><div class="nav-icon">🛒</div><div class="cart-nav-badge">3</div></div>Cart
+          </div>
+          <div class="nav-item active" onclick="goToScreen('screen-orders')"><div class="nav-icon">📋</div>Orders</div>
+          <div class="nav-item" onclick="goToScreen('screen-analytics')"><div class="nav-icon">📊</div>Analytics</div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN: SALES ANALYTICS DASHBOARD ═══ -->
+      <div class="screen" id="screen-analytics">
+        <div class="status-bar">
+          <span class="status-time">9:41</span>
+          <div class="status-icons">📶 📡 🔋</div>
+        </div>
+        <div class="analytics-header">
+          <div class="row-sb">
+            <div>
+              <h2>Analytics</h2>
+              <p>May 2026 • MedCare Pharmacy</p>
+            </div>
+            <button class="btn btn-sm btn-outline" style="width:auto;color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.2)">↓ Export</button>
+          </div>
+        </div>
+        <div class="content">
+
+          <!-- KPI Grid -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon">💰</div>
+              <div class="kpi-val">₹2.4L</div>
+              <div class="kpi-lbl">Total Purchases (May)</div>
+              <div class="kpi-change up">↑ 18% vs April</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">📦</div>
+              <div class="kpi-val">47</div>
+              <div class="kpi-lbl">Orders This Month</div>
+              <div class="kpi-change up">↑ 12 more than Apr</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">💸</div>
+              <div class="kpi-val">₹28K</div>
+              <div class="kpi-lbl">Total Savings</div>
+              <div class="kpi-change up">↑ Bulk discounts</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon">⚡</div>
+              <div class="kpi-val">1.2d</div>
+              <div class="kpi-lbl">Avg. Delivery Time</div>
+              <div class="kpi-change up">↓ 0.3d faster</div>
+            </div>
+          </div>
+
+          <!-- Bar Chart -->
+          <div class="chart-wrap">
+            <div class="chart-title">Monthly Spend (₹ Lakhs)</div>
+            <div class="bar-chart">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                <div class="bar" style="height:40%"></div>
+                <div class="bar-label">Jan</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                <div class="bar" style="height:55%"></div>
+                <div class="bar-label">Feb</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                <div class="bar" style="height:48%"></div>
+                <div class="bar-label">Mar</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                <div class="bar" style="height:62%"></div>
+                <div class="bar-label">Apr</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+                <div class="bar highlight" style="height:80%"></div>
+                <div class="bar-label" style="color:var(--mint);font-weight:700">May</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Products -->
+          <div class="chart-wrap">
+            <div class="chart-title">Top Purchased Products</div>
+            <div class="top-product">
+              <div class="top-rank">#1</div>
+              <div>
+                <div class="top-name">Paracetamol 500mg</div>
+                <div class="top-bar"><div class="top-bar-fill" style="width:100%"></div></div>
+              </div>
+              <div class="top-val">₹48,200</div>
+            </div>
+            <div class="top-product">
+              <div class="top-rank">#2</div>
+              <div class="flex1">
+                <div class="top-name">Amoxicillin 500mg</div>
+                <div class="top-bar"><div class="top-bar-fill" style="width:75%"></div></div>
+              </div>
+              <div class="top-val">₹36,100</div>
+            </div>
+            <div class="top-product">
+              <div class="top-rank">#3</div>
+              <div class="flex1">
+                <div class="top-name">Metformin SR 500mg</div>
+                <div class="top-bar"><div class="top-bar-fill" style="width:62%"></div></div>
+              </div>
+              <div class="top-val">₹29,850</div>
+            </div>
+            <div class="top-product">
+              <div class="top-rank">#4</div>
+              <div class="flex1">
+                <div class="top-name">Benadryl Cough Syrup</div>
+                <div class="top-bar"><div class="top-bar-fill" style="width:40%"></div></div>
+              </div>
+              <div class="top-val">₹19,200</div>
+            </div>
+          </div>
+
+          <!-- Supplier Breakdown -->
+          <div class="chart-wrap">
+            <div class="chart-title">Spend by Supplier</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+              <div style="flex:5;height:10px;background:var(--teal);border-radius:4px 0 0 4px"></div>
+              <div style="flex:3;height:10px;background:var(--mint)"></div>
+              <div style="flex:2;height:10px;background:var(--amber);border-radius:0 4px 4px 0"></div>
+            </div>
+            <div class="row-sb mb6"><div class="row gap6"><div style="width:10px;height:10px;background:var(--teal);border-radius:2px;flex-shrink:0"></div><span class="text-sm">Sun Pharma</span></div><span class="text-sm bold">50% • ₹1.2L</span></div>
+            <div class="row-sb mb6"><div class="row gap6"><div style="width:10px;height:10px;background:var(--mint);border-radius:2px;flex-shrink:0"></div><span class="text-sm">Cipla Wholesale</span></div><span class="text-sm bold">30% • ₹72K</span></div>
+            <div class="row-sb"><div class="row gap6"><div style="width:10px;height:10px;background:var(--amber);border-radius:2px;flex-shrink:0"></div><span class="text-sm">Lupin Network</span></div><span class="text-sm bold">20% • ₹48K</span></div>
+          </div>
+
+          <div style="height:80px"></div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item" onclick="goToScreen('screen-home')"><div class="nav-icon">🏠</div>Home</div>
+          <div class="nav-item" onclick="goToScreen('screen-stock')"><div class="nav-icon">📦</div>Stock</div>
+          <div class="nav-item" onclick="goToScreen('screen-cart')">
+            <div class="nav-cart-wrap"><div class="nav-icon">🛒</div><div class="cart-nav-badge">3</div></div>Cart
+          </div>
+          <div class="nav-item" onclick="goToScreen('screen-orders')"><div class="nav-icon">📋</div>Orders</div>
+          <div class="nav-item active" onclick="goToScreen('screen-analytics')"><div class="nav-icon">📊</div>Analytics</div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <div class="toast" id="toast">✓ Added to cart</div>
+
+    </div><!-- /phone-screen -->
+  </div><!-- /phone-frame -->
+</div><!-- /phone-wrap -->
+
+<script>
+let currentScreen = 'screen-login';
+let prevScreen = null;
+let isBack = false;
+
+function goToScreen(id) {
+  const cur = document.getElementById(currentScreen);
+  const next = document.getElementById(id);
+  if (!next || id === currentScreen) return;
+  cur.classList.remove('active');
+  next.classList.remove('back');
+  if (isBack) next.classList.add('back');
+  prevScreen = currentScreen;
+  currentScreen = id;
+  next.classList.add('active');
+  isBack = false;
+  // scroll to top
+  const c = next.querySelector('.content');
+  if (c) c.scrollTop = 0;
+}
+
+function goBack() {
+  if (prevScreen) {
+    isBack = true;
+    goToScreen(prevScreen);
+  }
+}
+
+function showLoginStep(step) {
+  document.getElementById('login-step1').style.display = 'none';
+  document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('login-step3').style.display = 'none';
+  document.getElementById('login-step' + step).style.display = 'flex';
+}
+
+function selectKyc(el) {
+  document.querySelectorAll('.kyc-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleFilter(el) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function changeQty(btn, delta) {
+  const wrap = btn.parentElement;
+  const valEl = wrap.querySelector('.qty-val');
+  let val = parseInt(valEl.textContent) + delta;
+  if (val < 1) val = 1;
+  valEl.textContent = val;
+}
+
+function addToCartAnim(btn) {
+  const orig = btn.textContent;
+  btn.textContent = '✓';
+  btn.style.background = 'var(--mint)';
+  btn.style.color = 'var(--navy)';
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 1200);
+  showToast('💊 Added to cart!');
+}
+
+function selectPayment(el) {
+  document.querySelectorAll('.payment-method').forEach(m => {
+    m.classList.remove('selected');
+    const dot = m.querySelector('.radio-dot');
+    if (dot) dot.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  const dot = el.querySelector('.radio-dot');
+  if (dot) dot.classList.add('selected');
+}
+
+function placeOrder() {
+  showToast('🎉 Order placed successfully!');
+  setTimeout(() => goToScreen('screen-invoice'), 800);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
